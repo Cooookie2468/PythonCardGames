@@ -1,6 +1,7 @@
 # going to rename this later to blackguard
 # why? because its cool
 # also, like "scoundrel" is a synonym of "rouge", "blackguard" is a synonym of "scoundrel"
+# the joke is that its a rougelike
 
 '''
     To do
@@ -12,7 +13,6 @@
 
 import random
 
-cards = []
 cardvalues = {
 '2 ♠': -2, '3 ♠': -3, 
 '4 ♠': -4, '5 ♠': -5, 
@@ -43,6 +43,7 @@ cardvalues = {
 '10 ♡': 10, 
 }
 def MakeDeck():
+    cards = []
     for suit in range(1, 5):
         for value in range(2, 15):
             display = ""
@@ -76,6 +77,7 @@ def MakeDeck():
                 allowed = True 
             if allowed:
                 cards.append(display)
+    return cards
 
 '''
 def entrance_story(objType,objValue,itteration,roomcount):
@@ -109,36 +111,44 @@ def interact_story(objType,objValue):
             print('you pick up the weapon,', objValue ,'damage')
         # duribility, damage, its an actual weapon
         weapon = {
-            "duribility" : objValue,
+            "duribility" : -1,
             "damage" : objValue,
             "weaponType" : objType
         }
         print(weapon)
 
     elif objType == "♣" or objType == "♠":
-        # ask for what weapon is used
-        if weapon["duribility"] < objValue:
-            # this happens when you dont have the required durability to use your weapon; you fight bare handed
-            print("balls...")
-            # take damage equal to the monster's 
-            hp -= objValue
-            if hp > hpKill:
-                return('complete')
-        if weapon["duribility"] > objValue and weapon["duribility"] - 2 <= objValue and weapon["damage"] >= objValue:
-            print('you strike the creature down swiftly and deadly')
-            # this shows up when the user kills an enemy who:
-            #   - has less hp than your damage
-            #   - has hp bewteen your weapon durability and two less of it (exc - inc)
-            weapon['duribility'] = objValue
-            # effective use of your weapon
-            # remove enemy
-        elif weapon["duribility"] - 3 >= objValue and weapon["damage"] >= objValue:
-            print('you wildly chop into the creature')
-            # this shows up whan the user kills an enemy who:
-            #   - has less hp than your damage
-            #   - has less hp than your weapon duribility minus 3 (inc)
-            # lackluster use of your weapon
-            # remove enemy
+        if weapon['duribility'] >= 0:
+            # ask for what weapon is used
+            if weapon["duribility"] < objValue:
+                # this happens when you dont have the required durability to use your weapon; you fight bare handed
+                print("balls...")
+                # take damage equal to the monster's 
+                hp -= objValue
+                if hp > hpKill:
+                    print('after a brutal round of fisticufs you emerge victorious.')
+                
+            # these next two happen when you can kill the whole monster with only your weapon
+            if weapon["duribility"] > objValue and weapon["duribility"] - 2 <= objValue and weapon["damage"] >= objValue:
+                print('you strike the creature down swiftly and deadly')
+                # this shows up when the user kills an enemy who:
+                #   - has less hp than your damage
+                #   - has hp bewteen your weapon durability and two less of it (exc - inc)
+                weapon['duribility'] = objValue
+                # effective use of your weapon
+                # remove enemy
+            elif weapon["duribility"] - 3 >= objValue and weapon["damage"] >= objValue:
+                print('you wildly chop into the creature')
+                # this shows up whan the user kills an enemy who:
+                #   - has less hp than your damage
+                #   - has less hp than your weapon duribility minus 3 (inc)
+                # lackluster use of your weapon
+                # remove enemy
+        #this happens when the weapon is brand new or have no weapon
+        else:
+            if weapon['weaponType'] != 'hand':
+                print('a')
+            
         
 def start_run():
     global hp
@@ -146,7 +156,7 @@ def start_run():
     global hpMax
     global hpKill
     
-    MakeDeck()
+    cards = MakeDeck()
     print("Deck created...")
     random.shuffle(cards)
     print("loading room...")
@@ -154,7 +164,7 @@ def start_run():
     room = cards[:4]
     print('setting weapon...')
     weapon = {
-        "duribility" : 0,
+        "duribility" : -1,
         "damage" : 0,
         "weaponType" : "hand"
     }
@@ -189,8 +199,7 @@ def start_run():
     action = ""
     actionsLeft = ("1","2","3","4","0","z")
     while action not in actionsLeft:
-        action = input('what is your action? ')
-        action = action.lower()
+        action = input('what is your action? ').lower()
     roomContents ={
         "1": room[0],
         "2": room[1],
